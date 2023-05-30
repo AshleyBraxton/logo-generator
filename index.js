@@ -1,7 +1,7 @@
-var inquirer = require('inquirer');
-var shapes = require('./lib/shapes');
+const inquirer = require('inquirer');
+var {Circle, Triangle, Square} = require('./lib/shapes');
 var fs = require('fs');
-
+//^^Sets up the initial requirements
 var logoPrompts = [
     {
         type: 'input',
@@ -22,16 +22,41 @@ var logoPrompts = [
         message: 'What would you like the shape background color to be?'
     }
 ]
+//^^Creates the questions that the user will answer
 
-function writeToFile(data) {
-    fs.writeFile('./examples/logo.svg', data, (err) => 
-    err ? console.error(err) : console.log('Generated logo.svg'))
-}
+function setShape(answers) {
 
+    if (answers.shape === 'Circle') {
+        let logoShape = new Circle (answers)
+        return logoShape.createShape()
+    }
+
+    if (answers.shape === 'Square') {
+        let logoShape = new Square (answers)
+        return logoShape.createShape()
+    }
+
+    if (answers.shape === 'Triangle') {
+        let logoShape = new Triangle (answers)
+        return logoShape.createShape()
+    }
+};
+//^^generates the correct svg code based on user chosen shape and other info
 async function createLogo() {
-let data = await inquirer.prompt(logoPrompts);
-writeToFile(data);
-
+    await inquirer
+    .prompt(logoPrompts)
+    .then((answers) => {
+     
+      if (answers.text.length > 3) {
+        console.log('Logo text must be no more than 3 characters!');
+        createLogo();
+      } else {
+        var svgCode = setShape(answers)
+        fs.writeFile('./examples/logo.svg', svgCode, (err) => 
+        err ? console.error(err) : console.log('Generated logo.svg'))
+      }
+    })
+    
 }
-
+//^^Function to run the program, also includes err that catches if user text is over 3 characters and restarts the program
 createLogo();
